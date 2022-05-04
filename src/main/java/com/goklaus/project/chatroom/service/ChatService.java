@@ -1,6 +1,6 @@
 package com.goklaus.project.chatroom.service;
 
-import com.goklaus.project.chatroom.model.Message;
+import com.goklaus.project.chatroom.model.WsMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -16,12 +16,12 @@ public class ChatService {
     @Autowired
     SimpMessageSendingOperations simpMessageSendingOperations;
 
-    public void sendMsg(@Payload Message message) {
+    public void sendMsg(@Payload WsMessage message) {
         log.info("send msg by simpMessageSendingOperations:{}", message.toString());
         simpMessageSendingOperations.convertAndSend("/topic/public", message);
     }
 
-    public void alterUserStatus(@Payload Message message) {
+    public void alterUserStatus(@Payload WsMessage message) {
         log.info("alter user online by simpMessageSendingOperations:{}", message.toString());
         simpMessageSendingOperations.convertAndSend("/topic/public", message);
     }

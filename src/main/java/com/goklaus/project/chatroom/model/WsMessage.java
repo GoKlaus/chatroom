@@ -2,7 +2,7 @@ package com.goklaus.project.chatroom.model;
 
 import java.io.Serializable;
 
-public class Message implements Serializable {
+public class WsMessage implements Serializable {
 
     public static final long serialVersionUID = 1L;
 

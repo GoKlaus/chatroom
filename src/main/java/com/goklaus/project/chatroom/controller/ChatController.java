@@ -1,7 +1,8 @@
 package com.goklaus.project.chatroom.controller;
 
-import com.goklaus.project.chatroom.model.Message;
+import com.goklaus.project.chatroom.model.WsMessage;
 import com.goklaus.project.chatroom.service.ChatService;
+import com.goklaus.project.chatroom.util.JsonUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,9 +24,8 @@ public class ChatController {
     @Value("${redis.channel.msgToAll}")
     private String msgToAll;
 
-
-    @Value("${redis.channel.onlineUser")
-    private String onlineUser;
+    @Value("${redis.channel.onlineUsers")
+    private String onlineUsers;
 
     @Value("${redis.channel.userStatus}")
     private String userStatus;
@@ -37,12 +37,25 @@ public class ChatController {
     private RedisTemplate<String, String> redisTemplate;
 
     @MessageMapping("chat.sendMessage")
-    public void sendMessage(@Payload Message message) {
+    public void sendMessage(@Payload WsMessage message) {
         log.info("send message {}", message);
+        try {
+            redisTemplate.convertAndSend(msgToAll, JsonUtil.parseObjToJson(message));
+        } catch (Exception e) {
+            // TODO: handle exception
+            log.error(e.getMessage(), e);
+        }
     }
 
     @MessageMapping("chat.addUser")
-    public void addUser(@Payload Message message, SimpMessageHeaderAccessor headerAccessor) {
+    public void addUser(@Payload WsMessage message, SimpMessageHeaderAccessor headerAccessor) {
         log.info("add user , message {}", message);
+        try {
+            headerAccessor.getSessionAttributes().put("username", message.getSender());
+            redisTemplate.opsForSet().add(onlineUsers, message.getSender());
+            redisTemplate.convertAndSend(userStatus, JsonUtil.parseObjToJson(message));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 }

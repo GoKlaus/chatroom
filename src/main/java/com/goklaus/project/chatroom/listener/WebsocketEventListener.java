@@ -3,7 +3,7 @@ package com.goklaus.project.chatroom.listener;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 
-import com.goklaus.project.chatroom.model.Message;
+import com.goklaus.project.chatroom.model.WsMessage;
 import com.goklaus.project.chatroom.util.JsonUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,8 +64,8 @@ public class WebsocketEventListener {
         String username = (String) accessor.getSessionAttributes().get("username");
         if (username != null) {
             log.info("User Disconnected : " + username);
-            Message chatMessage = new Message();
-            chatMessage.setType(Message.MessageType.LEAVE);
+            WsMessage chatMessage = new WsMessage();
+            chatMessage.setType(WsMessage.MessageType.LEAVE);
             chatMessage.setSender(username);
             try {
                 redisTemplate.opsForSet().remove(onlineUsers, username);
