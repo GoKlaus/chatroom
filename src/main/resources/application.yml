@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: chatroom
+  redis:
+    database: 0
+    host: 127.0.0.1
+    password: 
+    port: 6379
+    ssl: false
+    jedis:
+      pool:
+        max-idle: 10
+        max-wait: 60000
+server:
+  port: 8080
+
+redis:
+  set:
+    onlineUsers: websocket.onlineUsers
+  channel:
+    msgToAll: websocket.msgToAll
+    userStatus: websocket.userStatus
