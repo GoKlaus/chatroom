@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
@@ -31,13 +32,11 @@ public class ChatController {
     private String userStatus;
 
     @Autowired
-    private ChatService chatService;
-
-    @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
     @MessageMapping("chat.sendMessage")
-    public void sendMessage(@Payload WsMessage message) {
+    // @SendTo("/topic/public")
+    public WsMessage sendMessage(@Payload WsMessage message) {
         log.info("send message {}", message);
         try {
             redisTemplate.convertAndSend(msgToAll, JsonUtil.parseObjToJson(message));
@@ -45,10 +44,11 @@ public class ChatController {
             // TODO: handle exception
             log.error(e.getMessage(), e);
         }
+        return message;
     }
 
     @MessageMapping("chat.addUser")
-    public void addUser(@Payload WsMessage message, SimpMessageHeaderAccessor headerAccessor) {
+    public WsMessage addUser(@Payload WsMessage message, SimpMessageHeaderAccessor headerAccessor) {
         log.info("add user , message {}", message);
         try {
             headerAccessor.getSessionAttributes().put("username", message.getSender());
@@ -57,5 +57,6 @@ public class ChatController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return message;
     }
 }

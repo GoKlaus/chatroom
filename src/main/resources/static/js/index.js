@@ -29,10 +29,13 @@ function connect(event) {
     usernamePage.classList.add("hidden");
     chatPage.classList.remove("hidden");
 
-    var socket = new SockJS("/ws");
-    stompClient = Stomp.over(socket);
-
-    stompClient.connect({}, onConnected, onError);
+    try {
+      var socket = new SockJS("http://localhost:8080/ws");
+      stompClient = Stomp.over(socket);
+      stompClient.connect({}, onConnected, onError);
+    } catch (error) {
+      console.log(error);
+    }
   }
   event.preventDefault();
 }

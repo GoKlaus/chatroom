@@ -37,6 +37,6 @@ public class JsonUtil {
             // TODO: handle exception
             log.error("json string to class simple error, message {}", e.getMessage());
         }
-        return null;
+        return result;
     }
 }

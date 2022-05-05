@@ -1,6 +1,5 @@
 package com.goklaus.project.chatroom.config;
 
-import java.util.List;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

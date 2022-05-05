@@ -1,5 +1,6 @@
-package com.goklaus.project.chatroom.redis;
+package com.goklaus.project.chatroom.messageHandler;
 
+import com.goklaus.project.chatroom.config.properties.RedisProperty;
 import com.goklaus.project.chatroom.model.WsMessage;
 import com.goklaus.project.chatroom.service.ChatService;
 import com.goklaus.project.chatroom.util.JsonUtil;
@@ -15,31 +16,19 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * redis 订阅频道处理类
+ * 消息监听器适配器，绑定消息处理器
  */
-@Component
 @Slf4j
 public class RedisListenerHandler extends MessageListenerAdapter {
 
-    @Value("${redis.channel.msgToAll}")
-    private String msgToAll;
+    private RedisProperty redisProperty;
 
-    @Value("${redis.channel.userStatus}")
-    private String userStatus;
+    private RedisTemplate<String, Object> redisTemplate;
 
-    @Value("${server.port}")
-    private String serverPort;
-
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
-
-    @Autowired
     private ChatService chatService;
 
     @Override
     public void onMessage(Message message, byte[] bytes) {
-        // TODO Auto-generated method stub
-        super.onMessage(message, bytes);
-
         byte[] body = message.getBody();
         byte[] channel = message.getChannel();
 
@@ -56,14 +45,14 @@ public class RedisListenerHandler extends MessageListenerAdapter {
             return;
         }
 
-        if (msgToAll.equals(topic)) {
+        if (redisProperty.getMsgToAll().equals(topic)) {
             log.info("send msg to all users");
             WsMessage wsMessage = JsonUtil.parseJsonToObj(rawMsg, WsMessage.class);
             if (wsMessage != null) {
                 chatService.sendMsg(wsMessage);
             }
 
-        } else if (userStatus.equals(topic)) {
+        } else if (redisProperty.getUserStatus().equals(topic)) {
             WsMessage wsMessage = JsonUtil.parseJsonToObj(rawMsg, WsMessage.class);
             if (wsMessage != null) {
                 chatService.alterUserStatus(wsMessage);
@@ -71,6 +60,33 @@ public class RedisListenerHandler extends MessageListenerAdapter {
         } else {
             log.warn("No further operation with this topic!");
         }
+    }
+
+    public RedisProperty getRedisProperty() {
+        return redisProperty;
+    }
+
+    public RedisListenerHandler setRedisProperty(RedisProperty redisProperty) {
+        this.redisProperty = redisProperty;
+        return this;
+    }
+
+    public RedisTemplate<String, Object> getRedisTemplate() {
+        return redisTemplate;
+    }
+
+    public RedisListenerHandler setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+        return this;
+    }
+
+    public ChatService getChatService() {
+        return chatService;
+    }
+
+    public RedisListenerHandler setChatService(ChatService chatService) {
+        this.chatService = chatService;
+        return this;
     }
 
 }
